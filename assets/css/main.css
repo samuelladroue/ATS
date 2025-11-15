@@ -1,4 +1,4 @@
-/* CSS de base - Tailwind CDN gère le reste */
+/* CSS Revolut-like - Style tech épuré */
 * {
   box-sizing: border-box;
 }
@@ -6,5 +6,42 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #0a0a0a;
+  line-height: 1.6;
+}
+
+/* Typographie moderne */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Scrollbar personnalisée (subtile) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fafafa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d0d0d0;
+}
+
+/* Focus states épurés */
+*:focus-visible {
+  outline: 2px solid #0a0a0a;
+  outline-offset: 2px;
 }

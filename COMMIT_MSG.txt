@@ -1,0 +1,9 @@
+Initial commit: Netter ATS Frontend
+
+- Nuxt 3 avec TypeScript
+- Pages publiques (liste offres, détail, candidature)
+- Pages admin (gestion offres, kanban candidatures)
+- Server routes pour sécurité admin
+- Tailwind CSS via CDN
+- Configuration Vercel prête
+
