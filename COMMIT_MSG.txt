@@ -1,1 +1,1 @@
-Merge: Resolve .gitignore conflict and add backend
+Update: Add Railway deployment guides and debug docs
