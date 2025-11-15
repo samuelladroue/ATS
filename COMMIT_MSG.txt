@@ -1,1 +1,13 @@
-Update: Add Railway deployment guides and debug docs
+feat: amélioration interface admin et module email complet
+
+- Séparation colonnes Offre/Stage dans la table des candidats (une ligne par candidature)
+- Ajout fonctionnalité suppression candidats et offres avec confirmation
+- Module email complet avec templates, historique et envoi via Resend
+- Scripts de démarrage/arrêt pour frontend et backend
+- Amélioration navigation admin avec AdminNavigation component
+- Nuxt 3 avec TypeScript
+- Pages publiques (liste offres, détail, candidature)
+- Pages admin (gestion offres, kanban candidatures)
+- Server routes pour sécurité admin
+- Tailwind CSS via CDN
+- Configuration Vercel prête
