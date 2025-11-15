@@ -12,15 +12,6 @@ venv/
 env/
 ENV/
 
-# Node dependencies
-node_modules/
-.nuxt/
-.output/
-.nitro/
-.cache/
-dist/
-.data/
-
 # Environment
 .env
 .env.local
@@ -29,7 +20,6 @@ dist/
 # IDE
 .vscode/
 .idea/
-.fleet/
 *.swp
 *.swo
 *~
@@ -39,5 +29,5 @@ dist/
 Thumbs.db
 
 # Logs
-logs/
 *.log
+
