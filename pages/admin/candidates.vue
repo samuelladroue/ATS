@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen bg-white py-8 sm:py-12">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <!-- Admin Navigation -->
+      <!-- Admin Navigation (includes AI Agent) -->
       <AdminNavigation />
       
       <!-- Header -->
       <div class="mb-10">
         <div class="flex items-start justify-between flex-wrap gap-6">
           <div class="flex-1">
-            <h1 class="text-4xl sm:text-5xl font-semibold text-primary-900 mb-3 tracking-tight">Tous les candidats</h1>
-            <p class="text-primary-600 text-lg">Visualisez tous les candidats qui ont postulé aux offres</p>
+            <h1 class="text-4xl sm:text-5xl font-semibold text-primary-900 mb-3 tracking-tight">All Candidates</h1>
+            <p class="text-primary-600 text-lg">View all candidates who have applied to jobs</p>
           </div>
         </div>
       </div>
@@ -17,7 +17,7 @@
       <!-- Loading -->
       <div v-if="loading" class="text-center py-20">
         <div class="inline-block animate-spin rounded-full h-10 w-10 border-2 border-primary-200 border-t-primary-900"></div>
-        <p class="mt-6 text-primary-600 text-sm">Chargement des candidats...</p>
+        <p class="mt-6 text-primary-600 text-sm">Loading candidates...</p>
       </div>
 
       <!-- Error -->
@@ -27,7 +27,7 @@
 
       <!-- Candidates List -->
       <div v-else-if="candidateRows.length === 0" class="text-center py-20 text-primary-500">
-        <p>Aucune candidature pour le moment.</p>
+        <p>No applications at the moment.</p>
       </div>
 
       <div v-else class="bg-white rounded-2xl border border-primary-200 overflow-hidden">
@@ -35,12 +35,12 @@
           <table class="w-full">
             <thead class="bg-primary-50 border-b border-primary-200">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Candidat</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Candidate</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Email</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">LinkedIn</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Offre</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Job</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Stage</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Date d'inscription</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Registration Date</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -48,7 +48,7 @@
               <template v-if="candidateRows.length === 0">
                 <tr>
                   <td colspan="7" class="px-6 py-8 text-center text-primary-500">
-                    Aucune candidature pour le moment.
+                    No applications at the moment.
                   </td>
                 </tr>
               </template>
@@ -90,7 +90,7 @@
                   >
                     {{ row.job.title }}
                   </NuxtLink>
-                  <span v-else class="text-sm text-primary-400">Offre supprimée</span>
+                  <span v-else class="text-sm text-primary-400">Job deleted</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span
@@ -106,7 +106,7 @@
                   <button
                     @click="confirmDeleteCandidate(row.candidate)"
                     class="inline-flex items-center border-2 border-red-600 text-red-600 py-2 px-4 rounded-xl font-medium hover:bg-red-600 hover:text-white transition-all duration-200 text-sm"
-                    title="Supprimer le candidat"
+                    title="Delete candidate"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -191,7 +191,7 @@ const fetchCandidates = async () => {
     candidates.value = candidatesData
     jobs.value = jobsData
   } catch (err: any) {
-    error.value = err.data?.message || err.message || 'Erreur lors du chargement des candidats'
+    error.value = err.data?.message || err.message || 'Error loading candidates'
   } finally {
     loading.value = false
   }
@@ -200,7 +200,7 @@ const fetchCandidates = async () => {
 // Format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
+  return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -224,10 +224,10 @@ const getStageLabel = (stage: string) => {
 const confirmDeleteCandidate = (candidate: Candidate) => {
   const applicationsCount = candidate.applications.length
   const applicationsText = applicationsCount > 0 
-    ? ` Cette action supprimera également ${applicationsCount} candidature${applicationsCount > 1 ? 's' : ''} associée${applicationsCount > 1 ? 's' : ''} et ne peut pas être annulée.`
-    : ' Cette action ne peut pas être annulée.'
+    ? ` This will also delete ${applicationsCount} associated application${applicationsCount > 1 ? 's' : ''} and cannot be undone.`
+    : ' This action cannot be undone.'
   
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le candidat "${candidate.full_name}" (${candidate.email}) ?${applicationsText}`)) {
+  if (confirm(`Are you sure you want to delete candidate "${candidate.full_name}" (${candidate.email})?${applicationsText}`)) {
     deleteCandidate(candidate.id)
   }
 }
@@ -240,7 +240,7 @@ const deleteCandidate = async (candidateId: string) => {
     })
     await fetchCandidates()
   } catch (err: any) {
-    alert(err.data?.message || err.message || 'Erreur lors de la suppression du candidat')
+    alert(err.data?.message || err.message || 'Error deleting candidate')
   } finally {
     deleting.value = false
   }

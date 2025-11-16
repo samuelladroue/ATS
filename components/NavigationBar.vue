@@ -16,18 +16,18 @@
             :class="[
               'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
               isCandidateSpace
-                ? 'bg-white text-primary-900 shadow-subtle'
+                ? 'bg-white text-primary-900 border-2 border-primary-900'
                 : 'text-primary-600 hover:text-primary-900'
             ]"
           >
-            Candidat
+            Candidate
           </NuxtLink>
           <NuxtLink
             to="/admin/jobs"
             :class="[
               'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
               isAdminSpace
-                ? 'bg-white text-primary-900 shadow-subtle'
+                ? 'bg-white text-primary-900 border-2 border-primary-900'
                 : 'text-primary-600 hover:text-primary-900'
             ]"
           >

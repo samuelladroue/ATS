@@ -1,7 +1,13 @@
 <template>
   <nav class="bg-white border-b border-primary-200 mb-8">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="flex items-center gap-6 py-4">
+      <!-- AI Chatbox Section -->
+      <div class="py-4 mb-4">
+        <AIChatbox />
+      </div>
+      
+      <!-- Navigation Links -->
+      <div class="flex items-center gap-6 py-4 border-t border-primary-100">
         <NuxtLink
           to="/admin/jobs"
           :class="[
@@ -11,7 +17,7 @@
               : 'text-primary-600 border-transparent hover:text-primary-900 hover:border-primary-300'
           ]"
         >
-          Offres
+          Jobs
         </NuxtLink>
         <NuxtLink
           to="/admin/candidates"
@@ -22,7 +28,7 @@
               : 'text-primary-600 border-transparent hover:text-primary-900 hover:border-primary-300'
           ]"
         >
-          Candidats
+          Candidates
         </NuxtLink>
         <NuxtLink
           to="/admin/email-templates"

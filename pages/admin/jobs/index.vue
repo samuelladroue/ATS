@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen bg-white py-8 sm:py-12">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <!-- Admin Navigation -->
+      <!-- Admin Navigation (includes AI Agent) -->
       <AdminNavigation />
       
       <!-- Header -->
       <div class="mb-10">
         <div class="flex items-start justify-between flex-wrap gap-6 mb-6">
           <div class="flex-1">
-            <h1 class="text-4xl sm:text-5xl font-semibold text-primary-900 mb-3 tracking-tight">Gestion des offres d'emploi</h1>
-            <p class="text-primary-600 text-lg">Créez et gérez vos offres d'emploi</p>
+            <h1 class="text-4xl sm:text-5xl font-semibold text-primary-900 mb-3 tracking-tight">Job Management</h1>
+            <p class="text-primary-600 text-lg">Create and manage your job offers</p>
           </div>
           <button
             @click="showCreateForm = !showCreateForm"
@@ -18,14 +18,14 @@
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" :d="showCreateForm ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'" />
             </svg>
-            {{ showCreateForm ? 'Masquer le formulaire' : 'Créer une nouvelle offre' }}
+            {{ showCreateForm ? 'Hide form' : 'Create new job' }}
           </button>
         </div>
       </div>
 
       <!-- Create job form -->
       <div v-if="showCreateForm" class="bg-white rounded-2xl border border-primary-200 p-6 sm:p-8 mb-10">
-        <h2 class="text-2xl font-semibold mb-6 text-primary-900">Créer une nouvelle offre</h2>
+        <h2 class="text-2xl font-semibold mb-6 text-primary-900">Create new job</h2>
         
         <form @submit.prevent="createJob" class="space-y-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -46,7 +46,7 @@
 
             <div>
               <label for="title" class="block text-sm font-medium text-primary-900 mb-2">
-                Titre *
+                Title *
               </label>
               <input
                 id="title"
@@ -75,7 +75,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div>
               <label for="location" class="block text-sm font-medium text-primary-900 mb-2">
-                Localisation
+                Location
               </label>
               <input
                 id="location"
@@ -88,7 +88,7 @@
 
             <div>
               <label for="department" class="block text-sm font-medium text-primary-900 mb-2">
-                Département
+                Department
               </label>
               <input
                 id="department"
@@ -101,15 +101,15 @@
 
             <div>
               <label for="status" class="block text-sm font-medium text-primary-900 mb-2">
-                Statut
+                Status
               </label>
               <select
                 id="status"
                 v-model="newJob.status"
                 class="w-full px-4 py-3 border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-900 focus:border-primary-900 bg-white text-primary-900 transition-all"
               >
-                <option value="open">Ouverte</option>
-                <option value="closed">Fermée</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
               </select>
             </div>
           </div>
@@ -128,8 +128,8 @@
                 : 'bg-white text-primary-900 hover:bg-primary-900 hover:text-white'
             ]"
           >
-            <span v-if="creating">Création...</span>
-            <span v-else>Créer l'offre</span>
+            <span v-if="creating">Creating...</span>
+            <span v-else>Create job</span>
           </button>
         </form>
       </div>
@@ -137,12 +137,12 @@
       <!-- Jobs list -->
       <div class="bg-white rounded-2xl border border-primary-200 overflow-hidden">
         <div class="px-6 sm:px-8 py-5 border-b border-primary-200">
-          <h2 class="text-xl font-semibold text-primary-900">Liste des offres</h2>
+          <h2 class="text-xl font-semibold text-primary-900">Job List</h2>
         </div>
 
         <div v-if="loading" class="p-16 text-center">
           <div class="inline-block animate-spin rounded-full h-10 w-10 border-2 border-primary-200 border-t-primary-900"></div>
-          <p class="mt-6 text-primary-600 text-sm">Chargement...</p>
+          <p class="mt-6 text-primary-600 text-sm">Loading...</p>
         </div>
 
         <div v-else-if="error" class="p-6 bg-primary-100 border border-primary-300 m-6 rounded-xl">
@@ -150,7 +150,7 @@
         </div>
 
         <div v-else-if="jobs.length === 0" class="p-16 text-center text-primary-500">
-          <p>Aucune offre pour le moment.</p>
+          <p>No jobs at the moment.</p>
         </div>
 
         <div v-else class="divide-y divide-primary-200">
@@ -173,7 +173,7 @@
                         : 'bg-primary-200 text-primary-600 border border-primary-300'
                     ]"
                   >
-                    {{ job.status === 'open' ? 'Ouverte' : 'Fermée' }}
+                    {{ job.status === 'open' ? 'Open' : 'Closed' }}
                   </span>
                 </div>
                 <div class="flex items-center gap-4 text-sm text-primary-600 flex-wrap">
@@ -197,7 +197,7 @@
                 <button
                   @click="confirmDeleteJob(job)"
                   class="inline-flex items-center border-2 border-red-600 text-red-600 py-3 px-6 rounded-xl font-medium hover:bg-red-600 hover:text-white transition-all duration-200 text-sm"
-                  title="Supprimer l'offre"
+                  title="Delete job"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -250,7 +250,7 @@ const fetchJobs = async () => {
     const data = await $fetch<Job[]>('/api/admin/jobs')
     jobs.value = data
   } catch (err: any) {
-    error.value = err.data?.message || err.message || 'Erreur lors du chargement des offres'
+    error.value = err.data?.message || err.message || 'Error loading jobs'
   } finally {
     loading.value = false
   }
@@ -292,7 +292,7 @@ const createJob = async () => {
     // Refresh list
     await fetchJobs()
   } catch (err: any) {
-    createError.value = err.data?.message || err.message || 'Erreur lors de la création de l\'offre'
+    createError.value = err.data?.message || err.message || 'Error creating job'
   } finally {
     creating.value = false
   }
@@ -301,7 +301,7 @@ const createJob = async () => {
 // Format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
+  return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -310,7 +310,7 @@ const formatDate = (dateString: string) => {
 
 // Delete job
 const confirmDeleteJob = (job: Job) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer l'offre "${job.title}" ? Cette action supprimera également toutes les candidatures associées et ne peut pas être annulée.`)) {
+  if (confirm(`Are you sure you want to delete the job "${job.title}"? This will also delete all associated applications and cannot be undone.`)) {
     deleteJob(job.id)
   }
 }
@@ -323,7 +323,7 @@ const deleteJob = async (jobId: string) => {
     })
     await fetchJobs()
   } catch (err: any) {
-    alert(err.data?.message || err.message || 'Erreur lors de la suppression de l\'offre')
+    alert(err.data?.message || err.message || 'Error deleting job')
   } finally {
     deleting.value = false
     jobToDelete.value = null

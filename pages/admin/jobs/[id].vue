@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white py-8 sm:py-12">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-      <!-- Admin Navigation -->
+      <!-- Admin Navigation (includes AI Agent) -->
       <AdminNavigation />
       
       <!-- Header -->
@@ -14,11 +14,11 @@
             <svg class="w-4 h-4 mr-2 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
-            Retour aux offres
+            Back to jobs
           </NuxtLink>
         </div>
         <h1 class="text-4xl sm:text-5xl font-semibold text-primary-900 mb-2 tracking-tight">
-          {{ job?.title || 'Candidatures' }}
+          {{ job?.title || 'Applications' }}
         </h1>
         <div v-if="job" class="flex items-center gap-2 text-primary-600 flex-wrap">
           <span v-if="job.location">{{ job.location }}</span>
@@ -31,7 +31,7 @@
       <!-- Loading -->
       <div v-if="loading" class="text-center py-20">
         <div class="inline-block animate-spin rounded-full h-10 w-10 border-2 border-primary-200 border-t-primary-900"></div>
-        <p class="mt-6 text-primary-600 text-sm">Chargement des candidatures...</p>
+        <p class="mt-6 text-primary-600 text-sm">Loading applications...</p>
       </div>
 
       <!-- Error -->
@@ -49,7 +49,7 @@
           <div class="px-4 sm:px-5 py-4 border-b border-primary-200">
             <h3 class="font-semibold text-primary-900 text-sm">{{ stage.label }}</h3>
             <p class="text-xs text-primary-500 mt-1">
-              {{ getApplicationsByStage(stage.key).length }} candidature(s)
+              {{ getApplicationsByStage(stage.key).length }} application(s)
             </p>
           </div>
 
@@ -111,7 +111,7 @@
                           : 'bg-red-50 text-red-700 border border-red-200'
                       ]"
                     >
-                      Moy: {{ getAverageRating(app).toFixed(1) }}
+                      Avg: {{ getAverageRating(app).toFixed(1) }}
                     </span>
                   </div>
                 </div>
@@ -121,7 +121,7 @@
                 @click="openModal(app)"
                 class="w-full mb-3 inline-flex items-center justify-center border-2 border-primary-900 text-primary-900 py-2 px-4 rounded-xl font-medium hover:bg-primary-900 hover:text-white transition-all duration-200 text-xs"
               >
-                Voir détails
+                View details
               </button>
 
               <div class="flex gap-1 justify-center flex-wrap">
@@ -137,7 +137,7 @@
                       : 'bg-white border-primary-300 text-primary-700 hover:bg-primary-900 hover:text-white hover:border-primary-900',
                     moving === app.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                   ]"
-                  :title="isCurrentStage(app.stage, stageOption.key) ? `Stage actuel: ${stageOption.label}` : `Déplacer vers ${stageOption.label}`"
+                  :title="isCurrentStage(app.stage, stageOption.key) ? `Current stage: ${stageOption.label}` : `Move to ${stageOption.label}`"
                 >
                   {{ idx + 1 }}
                 </button>
@@ -145,7 +145,7 @@
             </div>
 
             <div v-if="getApplicationsByStage(stage.key).length === 0" class="text-center text-primary-400 text-sm py-8">
-              Vide
+              Empty
             </div>
           </div>
         </div>
@@ -161,7 +161,7 @@
       <div class="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col border border-primary-200">
         <!-- Header -->
         <div class="flex-shrink-0 border-b border-primary-200 px-6 py-4 flex items-center justify-between">
-          <h2 class="text-2xl font-semibold text-primary-900">Détails de la candidature</h2>
+          <h2 class="text-2xl font-semibold text-primary-900">Application Details</h2>
           <button
             @click="closeModal"
             class="text-primary-600 hover:text-primary-900 transition-colors"
@@ -178,7 +178,7 @@
           <div class="w-80 flex-shrink-0 border-r border-primary-200 px-6 py-6 overflow-y-auto">
             <div class="space-y-6">
               <div>
-                <h3 class="text-sm font-medium text-primary-500 mb-1">Nom complet</h3>
+                <h3 class="text-sm font-medium text-primary-500 mb-1">Full Name</h3>
                 <p class="text-lg font-semibold text-primary-900">{{ selectedApplication.candidate_name }}</p>
               </div>
               <div>
@@ -200,7 +200,7 @@
                 </a>
               </div>
               <div>
-                <h3 class="text-sm font-medium text-primary-500 mb-1">Date de candidature</h3>
+                <h3 class="text-sm font-medium text-primary-500 mb-1">Application Date</h3>
                 <p class="text-primary-900">{{ formatDate(selectedApplication.created_at) }}</p>
               </div>
               <div class="mb-6">
@@ -211,11 +211,11 @@
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  Envoyer un email
+                  Send email
                 </button>
               </div>
               <div>
-                <h3 class="text-sm font-medium text-primary-500 mb-3">Changer le stage</h3>
+                <h3 class="text-sm font-medium text-primary-500 mb-3">Change stage</h3>
                 <div class="flex flex-col gap-2">
                   <button
                     v-for="stage in stages"
@@ -243,19 +243,19 @@
               <!-- Email History Section -->
               <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-lg font-semibold text-primary-900">Historique des emails</h3>
+                  <h3 class="text-lg font-semibold text-primary-900">Email History</h3>
                   <button
                     @click="refreshEmailHistory"
                     class="text-sm text-primary-600 hover:text-primary-900 transition-colors"
                   >
-                    Actualiser
+                    Refresh
                   </button>
                 </div>
                 <div v-if="loadingEmails" class="text-center py-4">
                   <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-primary-200 border-t-primary-900"></div>
                 </div>
                 <div v-else-if="emailHistory.length === 0" class="text-center py-8 text-primary-500 text-sm">
-                  Aucun email envoyé à ce candidat
+                  No emails sent to this candidate
                 </div>
                 <div v-else class="space-y-4">
                   <div
@@ -267,7 +267,7 @@
                       <div>
                         <p class="font-semibold text-primary-900 text-sm">{{ email.subject }}</p>
                         <p class="text-xs text-primary-600 mt-1">
-                          De: {{ email.sender_name || email.sender_email }}
+                          From: {{ email.sender_name || email.sender_email }}
                         </p>
                       </div>
                       <span class="text-xs text-primary-500 whitespace-nowrap ml-4">
@@ -279,7 +279,7 @@
                 </div>
               </div>
 
-              <h3 class="text-lg font-semibold text-primary-900 mb-6">Notes et compte-rendus</h3>
+              <h3 class="text-lg font-semibold text-primary-900 mb-6">Notes and Reports</h3>
               
               <!-- Notes for each stage -->
               <div class="space-y-6">
@@ -331,13 +331,13 @@
                     <div class="space-y-4">
                       <div>
                         <label class="block text-sm font-medium text-primary-700 mb-2">
-                          Compte-rendu
+                          Report
                         </label>
                         <textarea
                           v-model="stageNoteForms[stage.key].report"
                           rows="4"
                           class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-primary-900 focus:border-primary-900 bg-white text-primary-900 placeholder-primary-400 text-sm resize-none"
-                          placeholder="Ajouter un compte-rendu pour ce stage..."
+                          placeholder="Add a report for this stage..."
                         ></textarea>
                       </div>
                       <div class="grid grid-cols-2 gap-4">
@@ -385,13 +385,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <span v-if="!stageNoteForms[stage.key].report && !stageNoteForms[stage.key].rating">
-                            Veuillez remplir le compte-rendu et sélectionner une note
+                            Please fill in the report and select a rating
                           </span>
                           <span v-else-if="!stageNoteForms[stage.key].report">
-                            Veuillez remplir le compte-rendu
+                            Please fill in the report
                           </span>
                           <span v-else-if="!stageNoteForms[stage.key].rating">
-                            Veuillez sélectionner une note
+                            Please select a rating
                           </span>
                         </div>
                       </div>
@@ -414,7 +414,7 @@
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span>{{ savingNotes ? 'Enregistrement en cours...' : 'Enregistrer la note' }}</span>
+                        <span>{{ savingNotes ? 'Saving...' : 'Save note' }}</span>
                       </button>
                       
                       <!-- Success message (temporary) -->
@@ -422,7 +422,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>Note enregistrée avec succès !</span>
+                        <span>Note saved successfully!</span>
                       </div>
                     </div>
                   </div>
@@ -444,7 +444,7 @@
     <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col border border-primary-200">
       <!-- Header -->
       <div class="flex-shrink-0 border-b border-primary-200 px-6 py-4 flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-primary-900">Envoyer un email</h2>
+        <h2 class="text-2xl font-semibold text-primary-900">Send email</h2>
         <button
           @click="showEmailComposer = false"
           class="text-primary-600 hover:text-primary-900 transition-colors"
@@ -461,7 +461,7 @@
           <!-- Template Selection -->
           <div>
             <label class="block text-sm font-medium text-primary-900 mb-2">
-              Template (optionnel)
+              Template (optional)
             </label>
             <div class="flex gap-2">
               <select
@@ -469,7 +469,7 @@
                 @change="loadTemplate"
                 class="flex-1 px-4 py-3 border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-900 focus:border-primary-900 bg-white text-primary-900"
               >
-                <option value="">Aucun template</option>
+                <option value="">No template</option>
                 <option v-for="template in emailTemplates" :key="template.id" :value="template.id">
                   {{ template.name }}
                 </option>
@@ -478,7 +478,7 @@
                 to="/admin/email-templates"
                 class="px-4 py-3 border-2 border-primary-900 text-primary-900 rounded-xl font-medium hover:bg-primary-900 hover:text-white transition-all duration-200 whitespace-nowrap bg-white inline-flex items-center justify-center"
               >
-                Gérer les templates
+                Manage templates
               </NuxtLink>
             </div>
           </div>
@@ -486,14 +486,14 @@
           <!-- Subject -->
           <div>
             <label class="block text-sm font-medium text-primary-900 mb-2">
-              Sujet *
+              Subject *
             </label>
             <input
               v-model="emailForm.subject"
               type="text"
               required
               class="w-full px-4 py-3 border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-900 focus:border-primary-900 bg-white text-primary-900 placeholder-primary-400"
-              placeholder="Sujet de l'email"
+              placeholder="Email subject"
             />
           </div>
 
@@ -507,17 +507,17 @@
               rows="10"
               required
               class="w-full px-4 py-3 border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-900 focus:border-primary-900 bg-white text-primary-900 placeholder-primary-400 resize-none"
-              placeholder="Corps de l'email (vous pouvez utiliser {{candidate_name}} pour le nom du candidat)"
+              placeholder="Email body (you can use {{candidate_name}} for the candidate's name)"
             ></textarea>
             <p class="text-xs text-primary-500 mt-2">
-              Astuce: Utilisez <code class="bg-primary-100 px-1 rounded">{{candidate_name}}</code> pour insérer le nom du candidat
+              Tip: Use <code class="bg-primary-100 px-1 rounded">{{candidate_name}}</code> to insert the candidate's name
             </p>
           </div>
 
           <!-- Preview -->
           <div v-if="emailForm.subject || emailForm.body" class="bg-primary-50 rounded-xl p-4 border border-primary-200">
-            <p class="text-xs font-medium text-primary-700 mb-2">Aperçu:</p>
-            <p class="text-sm font-semibold text-primary-900 mb-2">{{ emailForm.subject || '(Sans sujet)' }}</p>
+            <p class="text-xs font-medium text-primary-700 mb-2">Preview:</p>
+            <p class="text-sm font-semibold text-primary-900 mb-2">{{ emailForm.subject || '(No subject)' }}</p>
             <div class="text-sm text-primary-700 whitespace-pre-wrap">{{ previewEmailBody }}</div>
           </div>
 
@@ -528,7 +528,7 @@
               @click="showEmailComposer = false"
               class="flex-1 px-4 py-3 border-2 border-primary-900 text-primary-900 rounded-xl font-medium hover:bg-primary-900 hover:text-white transition-all duration-200 bg-white"
             >
-              Annuler
+              Cancel
             </button>
             <button
               type="submit"
@@ -540,8 +540,8 @@
                   : 'bg-white text-primary-900 hover:bg-primary-900 hover:text-white'
               ]"
             >
-              <span v-if="sendingEmail">Envoi en cours...</span>
-              <span v-else>Envoyer l'email</span>
+              <span v-if="sendingEmail">Sending...</span>
+              <span v-else>Send email</span>
             </button>
           </div>
         </form>
