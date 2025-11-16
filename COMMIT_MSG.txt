@@ -1,8 +1,6 @@
-feat: Add AI Agent and translate UI to English
+fix: Improve application form button visibility and translate to English
 
-- Add AI Agent chatbox component with OpenAI integration
-- Translate all UI text from French to English
-- Add AI chat endpoint for natural language job/template creation
-- Improve navigation with AdminNavigation component
-- Update button styling for better visibility
-- Add AI assistant setup documentation
+- Fix submit button styling for better visibility (border style)
+- Translate application form to English
+- Remove CV upload message while keeping the field
+- Update all French text to English in job detail page

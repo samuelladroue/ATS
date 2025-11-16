@@ -10,22 +10,22 @@
           <svg class="w-4 h-4 mr-2 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          Retour à l'accueil
+          Back to home
         </NuxtLink>
       </div>
 
       <!-- Loading state -->
       <div v-if="loading" class="text-center py-20">
         <div class="inline-block animate-spin rounded-full h-10 w-10 border-2 border-primary-200 border-t-primary-900"></div>
-        <p class="mt-6 text-primary-600 text-sm">Chargement de l'offre...</p>
+        <p class="mt-6 text-primary-600 text-sm">Loading job...</p>
       </div>
 
       <!-- Error state -->
       <div v-else-if="error" class="bg-primary-50 border border-primary-200 rounded-xl p-6 sm:p-8">
-        <h2 class="text-primary-900 font-semibold mb-2 text-lg">Erreur</h2>
+        <h2 class="text-primary-900 font-semibold mb-2 text-lg">Error</h2>
         <p class="text-primary-700 mb-4">{{ error }}</p>
         <NuxtLink to="/" class="inline-flex items-center text-primary-600 hover:text-primary-900 text-sm font-medium transition-colors">
-          ← Retour à l'accueil
+          ← Back to home
         </NuxtLink>
       </div>
 
@@ -138,12 +138,12 @@
 
         <!-- Application form -->
         <div class="border-t border-primary-200 px-6 sm:px-8 py-8 sm:py-10 bg-primary-50">
-          <h2 class="text-2xl font-semibold mb-8 text-primary-900">Postuler à cette offre</h2>
+          <h2 class="text-2xl font-semibold mb-8 text-primary-900">Apply for this position</h2>
           
           <form @submit.prevent="submitApplication" class="space-y-5">
             <div>
               <label for="full_name" class="block text-sm font-medium text-primary-900 mb-2">
-                Nom complet *
+                Full Name *
               </label>
               <input
                 id="full_name"
@@ -171,7 +171,7 @@
 
             <div>
               <label for="linkedin_url" class="block text-sm font-medium text-primary-900 mb-2">
-                LinkedIn (optionnel)
+                LinkedIn (optional)
               </label>
               <input
                 id="linkedin_url"
@@ -184,14 +184,13 @@
 
             <div>
               <label class="block text-sm font-medium text-primary-900 mb-2">
-                CV (bientôt disponible)
+                CV
               </label>
               <input
                 type="file"
                 disabled
                 class="w-full px-4 py-3 border border-primary-200 rounded-xl bg-primary-100 text-primary-400 cursor-not-allowed"
               />
-              <p class="mt-2 text-xs text-primary-500">L'upload de CV sera disponible prochainement</p>
             </div>
 
             <div v-if="submitError" class="bg-primary-100 border border-primary-300 rounded-xl p-4">
@@ -201,10 +200,10 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="w-full bg-primary-900 text-white py-3.5 px-6 rounded-xl font-medium hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
+              class="w-full border-2 border-primary-900 bg-white text-primary-900 py-3.5 px-6 rounded-xl font-medium hover:bg-primary-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
             >
-              <span v-if="submitting">Envoi en cours...</span>
-              <span v-else>Envoyer ma candidature</span>
+              <span v-if="submitting">Submitting...</span>
+              <span v-else>Submit Application</span>
             </button>
           </form>
         </div>
@@ -258,7 +257,7 @@ onMounted(async () => {
     const data = await $fetch<Job>(`${config.public.apiBase}/api/jobs/${slug.value}`)
     job.value = data
   } catch (err: any) {
-    error.value = err.data?.detail || err.message || 'Erreur lors du chargement de l\'offre'
+    error.value = err.data?.detail || err.message || 'Error loading job'
   } finally {
     loading.value = false
   }
@@ -282,7 +281,7 @@ const submitApplication = async () => {
     // Redirect to success page
     router.push(`/apply/success?job=${encodeURIComponent(job.value?.title || '')}`)
   } catch (err: any) {
-    submitError.value = err.data?.detail || err.message || 'Erreur lors de l\'envoi de votre candidature'
+    submitError.value = err.data?.detail || err.message || 'Error submitting your application'
   } finally {
     submitting.value = false
   }
