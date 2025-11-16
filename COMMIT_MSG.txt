@@ -1,13 +1,8 @@
-feat: amélioration interface admin et module email complet
+feat: Add AI Agent and translate UI to English
 
-- Séparation colonnes Offre/Stage dans la table des candidats (une ligne par candidature)
-- Ajout fonctionnalité suppression candidats et offres avec confirmation
-- Module email complet avec templates, historique et envoi via Resend
-- Scripts de démarrage/arrêt pour frontend et backend
-- Amélioration navigation admin avec AdminNavigation component
-- Nuxt 3 avec TypeScript
-- Pages publiques (liste offres, détail, candidature)
-- Pages admin (gestion offres, kanban candidatures)
-- Server routes pour sécurité admin
-- Tailwind CSS via CDN
-- Configuration Vercel prête
+- Add AI Agent chatbox component with OpenAI integration
+- Translate all UI text from French to English
+- Add AI chat endpoint for natural language job/template creation
+- Improve navigation with AdminNavigation component
+- Update button styling for better visibility
+- Add AI assistant setup documentation
