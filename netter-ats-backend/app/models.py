@@ -167,3 +167,16 @@ class Email(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ===== AI Chat =====
+
+class AIChatMessage(BaseModel):
+    message: str = Field(..., min_length=1)
+
+
+class AIChatResponse(BaseModel):
+    response: str
+    job_created: Optional[JobPublic] = None
+    template_created: Optional[EmailTemplate] = None
+    error: Optional[str] = None

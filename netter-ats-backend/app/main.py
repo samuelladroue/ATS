@@ -17,6 +17,8 @@ from app.models import (
     EmailSend,
     Email,
     CandidateWithApplications,
+    AIChatMessage,
+    AIChatResponse,
 )
 from app.deps import enable_cors, verify_admin_api_key
 from app.db import init_db, close_db, get_db, check_db_connection
@@ -34,6 +36,15 @@ except ImportError:
     RESEND_AVAILABLE = False
     print("⚠️  Resend non installé. Les fonctionnalités email seront désactivées.")
     print("   Pour activer: pip install resend")
+
+# Import OpenAI conditionnellement
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    print("⚠️  OpenAI non installé. Les fonctionnalités IA seront désactivées.")
+    print("   Pour activer: pip install openai")
 
 
 @asynccontextmanager
@@ -61,6 +72,19 @@ elif RESEND_AVAILABLE and not RESEND_API_KEY:
     print("   Configurez RESEND_API_KEY dans votre fichier .env")
 elif not RESEND_AVAILABLE:
     print("⚠️  Resend non installé. Installez-le avec: pip install resend")
+
+# Initialize OpenAI (si disponible)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+if OPENAI_AVAILABLE and OPENAI_API_KEY:
+    openai_client = OpenAI(api_key=OPENAI_API_KEY)
+    print("✅ OpenAI configuré - Assistant IA activé")
+elif OPENAI_AVAILABLE and not OPENAI_API_KEY:
+    print("⚠️  OPENAI_API_KEY non configurée. L'assistant IA sera désactivé.")
+    print("   Configurez OPENAI_API_KEY dans votre fichier .env")
+    openai_client = None
+elif not OPENAI_AVAILABLE:
+    print("⚠️  OpenAI non installé. Installez-le avec: pip install openai")
+    openai_client = None
 
 
 @app.get("/health")
@@ -250,6 +274,245 @@ async def delete_job(job_id: UUID):
             await conn.commit()
             
             return {"message": "Job deleted successfully"}
+
+
+# ===== Routes AI Assistant =====
+
+def generate_slug_from_title(title: str) -> str:
+    """Génère un slug à partir d'un titre."""
+    import re
+    # Convertir en minuscules et remplacer les espaces par des tirets
+    slug = title.lower()
+    # Remplacer les caractères spéciaux
+    slug = re.sub(r'[^\w\s-]', '', slug)
+    slug = re.sub(r'[-\s]+', '-', slug)
+    # Supprimer les tirets en début et fin
+    slug = slug.strip('-')
+    return slug
+
+
+@app.post("/api/ai/chat", response_model=AIChatResponse, dependencies=[Depends(verify_admin_api_key)])
+async def ai_chat(chat_message: AIChatMessage):
+    """AI Agent pour créer des offres d'emploi et templates d'email via commandes en langage naturel."""
+    if not OPENAI_AVAILABLE or not openai_client:
+        raise HTTPException(
+            status_code=500,
+            detail="OpenAI n'est pas configuré. Configurez OPENAI_API_KEY dans votre fichier .env"
+        )
+    
+    user_message = chat_message.message
+    
+    # Appeler OpenAI pour comprendre l'intention et extraire les données
+    system_prompt = """Tu es un assistant IA pour un système de gestion de candidatures (ATS).
+Ton rôle est de comprendre les demandes en langage naturel et d'extraire les informations nécessaires pour créer soit des offres d'emploi, soit des templates d'email.
+
+ACTIONS DISPONIBLES :
+
+1. CRÉER UNE OFFRE D'EMPLOI :
+Quand l'utilisateur demande de créer une offre d'emploi, extraire :
+- title (titre de l'offre)
+- description_md (description en markdown, détaillée et professionnelle)
+- location (lieu, si mentionné)
+- department (département, si mentionné)
+- salary (salaire si mentionné, à inclure dans la description)
+
+Format JSON :
+{
+  "action": "create_job",
+  "title": "Titre de l'offre",
+  "description_md": "Description détaillée en markdown...",
+  "location": "Ville, Pays" ou null,
+  "department": "Département" ou null
+}
+
+2. CRÉER UN TEMPLATE D'EMAIL :
+Quand l'utilisateur demande de créer un template d'email (pour envoyer à un candidat), extraire :
+- name (nom du template, ex: "Invitation entretien", "Refus candidature", "Offre acceptée")
+- subject (objet de l'email, professionnel et clair)
+- body (corps de l'email en texte, peut utiliser {{candidate_name}} comme variable)
+
+Les templates d'email sont utilisés pour communiquer avec les candidats à différentes étapes du processus de recrutement.
+
+Format JSON :
+{
+  "action": "create_template",
+  "name": "Nom du template",
+  "subject": "Objet de l'email",
+  "body": "Corps de l'email. Vous pouvez utiliser {{candidate_name}} pour personnaliser."
+}
+
+Si la demande n'est pas claire ou ne correspond à aucune action, réponds :
+{
+  "action": "unknown",
+  "message": "Je n'ai pas compris votre demande. Pouvez-vous reformuler ?"
+}"""
+
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            temperature=0.3,
+            response_format={"type": "json_object"}
+        )
+        
+        ai_response_text = response.choices[0].message.content
+        import json
+        ai_data = json.loads(ai_response_text)
+        
+        action = ai_data.get("action")
+        
+        # Si l'action est create_template, créer le template
+        if action == "create_template":
+            name = ai_data.get("name", "")
+            subject = ai_data.get("subject", "")
+            body = ai_data.get("body", "")
+            
+            if not name or not subject or not body:
+                return AIChatResponse(
+                    response="Je n'ai pas pu extraire toutes les informations nécessaires pour le template (nom, objet, corps). Pouvez-vous être plus précis ?",
+                    job_created=None,
+                    template_created=None,
+                    error="Missing template fields"
+                )
+            
+            # Créer le template
+            async with get_db() as conn:
+                async with conn.cursor() as cur:
+                    try:
+                        await cur.execute(
+                            """
+                            INSERT INTO email_templates (name, subject, body)
+                            VALUES (%s, %s, %s)
+                            RETURNING id, name, subject, body, created_at, updated_at
+                            """,
+                            (name, subject, body),
+                        )
+                        row = await cur.fetchone()
+                        await conn.commit()
+                        
+                        created_template = EmailTemplate(
+                            id=row[0],
+                            name=row[1],
+                            subject=row[2],
+                            body=row[3],
+                            created_at=row[4],
+                            updated_at=row[5],
+                        )
+                        
+                        return AIChatResponse(
+                            response=f"✅ Template d'email créé avec succès !\n\n**{created_template.name}**\n\nObjet : {created_template.subject}\n\nVous pouvez le voir et l'utiliser dans la section Templates.",
+                            job_created=None,
+                            template_created=created_template,
+                            error=None
+                        )
+                    except Exception as e:
+                        await conn.rollback()
+                        error_msg = str(e)
+                        return AIChatResponse(
+                            response=f"❌ Erreur lors de la création du template : {error_msg}",
+                            job_created=None,
+                            template_created=None,
+                            error=error_msg
+                        )
+        
+        # Si l'action n'est pas create_job, retourner un message
+        if action != "create_job":
+            return AIChatResponse(
+                response=ai_data.get("message", "Je n'ai pas compris votre demande. Pouvez-vous reformuler ?"),
+                job_created=None,
+                template_created=None,
+                error=None
+            )
+        
+        # Extraire les données
+        title = ai_data.get("title", "")
+        description_md = ai_data.get("description_md", "")
+        location = ai_data.get("location")
+        department = ai_data.get("department")
+        
+        if not title:
+            return AIChatResponse(
+                response="Je n'ai pas pu extraire le titre de l'offre. Pouvez-vous être plus précis ?",
+                job_created=None,
+                template_created=None,
+                error="Missing title"
+            )
+        
+        # Générer le slug à partir du titre
+        slug = generate_slug_from_title(title)
+        
+        # Créer l'offre via la logique existante
+        job_data = JobCreate(
+            slug=slug,
+            title=title,
+            description_md=description_md if description_md else None,
+            location=location,
+            department=department,
+            status="open"
+        )
+        
+        # Utiliser la fonction create_job existante
+        async with get_db() as conn:
+            async with conn.cursor() as cur:
+                try:
+                    await cur.execute(
+                        """
+                        INSERT INTO jobs (slug, title, description_md, location, department, status)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        RETURNING id, slug, title, description_md, location, department, status, created_at
+                        """,
+                        (job_data.slug, job_data.title, job_data.description_md, job_data.location, job_data.department, job_data.status),
+                    )
+                    row = await cur.fetchone()
+                    await conn.commit()
+                    
+                    created_job = JobPublic(
+                        id=row[0],
+                        slug=row[1],
+                        title=row[2],
+                        description_md=row[3],
+                        location=row[4],
+                        department=row[5],
+                        status=row[6],
+                        created_at=row[7],
+                    )
+                    
+                    return AIChatResponse(
+                        response=f"✅ Offre créée avec succès !\n\n**{created_job.title}**\n\nID: {created_job.id}\nSlug: {created_job.slug}\n\nVous pouvez la voir dans la liste des offres.",
+                        job_created=created_job,
+                        template_created=None,
+                        error=None
+                    )
+                except Exception as e:
+                    await conn.rollback()
+                    error_msg = str(e)
+                    if "unique" in error_msg.lower() or "duplicate" in error_msg.lower():
+                        return AIChatResponse(
+                            response=f"❌ Erreur : Une offre avec le slug '{slug}' existe déjà. Veuillez reformuler votre demande avec un titre différent.",
+                            job_created=None,
+                            template_created=None,
+                            error="Duplicate slug"
+                        )
+                    return AIChatResponse(
+                        response=f"❌ Erreur lors de la création de l'offre : {error_msg}",
+                        job_created=None,
+                        template_created=None,
+                        error=error_msg
+                    )
+    
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ Erreur lors de l'appel OpenAI: {error_details}")
+        return AIChatResponse(
+            response=f"❌ Erreur lors du traitement de votre demande : {str(e)}",
+            job_created=None,
+            template_created=None,
+            error=str(e)
+        )
 
 
 # ===== Routes Applications =====
